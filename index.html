@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SKYZOOSTORE — Premium Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --bg:#08090d;
+  --surface:#0f1117;
+  --surface-2:#151821;
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --text:#e8eaf0;
+  --muted:#8890a0;
+  --accent:#6366f1;
+  --accent-2:#8b5cf6;
+  --dana:#118eea;
+  --gopay:#00aa13;
+  --success:#10b981;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  touch-action:pan-y; /* Mencegah geser horizontal bawaan browser */
+}
+
+/* ============ SPLASH ============ */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .8s ease, visibility .8s;
+}
+#splash.hide{opacity:0;visibility:hidden;}
+.splash-logo{
+  width:90px;height:90px;border-radius:24px;
+  object-fit:cover;
+  box-shadow:0 0 60px rgba(99,102,241,0.4);
+  animation:splashIn .8s cubic-bezier(.2,.8,.2,1) both;
+  position:relative;
+}
+@keyframes splashIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}
+.splash-title{
+  margin-top:32px;font-family:'Space Grotesk';font-size:22px;font-weight:600;
+  letter-spacing:6px;animation:fadeIn 1s ease .3s both;
+}
+.splash-sub{
+  margin-top:10px;font-size:11px;letter-spacing:3px;color:var(--muted);
+  text-transform:uppercase;animation:fadeIn 1s ease .5s both;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* ============ INTRO VIDEO FULLSCREEN ============ */
+#introVideo{
+  position:fixed;inset:0;z-index:9000;
+  background:#000;overflow:hidden;
+  /* Transisi opacity agar tidak merusak layout/teks */
+  transition:opacity .8s ease, visibility .8s ease;
+}
+#introVideo video{width:100%;height:100%;object-fit:cover;display:block;}
+/* Class untuk menyembunyikan intro dengan aman */
+#introVideo.slide-out{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.intro-overlay{
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:30px;color:#fff;
+  pointer-events:none;
+}
+.intro-overlay .intro-tag{
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,0.9);margin-bottom:20px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  animation:fadeInUp 1s ease .3s both;
+}
+.intro-overlay h1{
+  font-family:'Space Grotesk';font-size:clamp(26px,5.5vw,54px);
+  font-weight:700;letter-spacing:-1px;line-height:1.1;
+  margin-bottom:16px;text-shadow:0 4px 30px rgba(0,0,0,0.9);
+  animation:fadeInUp 1s ease .6s both;
+}
+.intro-overlay h1 span{
+  background:linear-gradient(135deg,#a5b4fc,#8b5cf6,#fff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow: none;
+}
+.intro-overlay p{
+  font-size:14px;color:#fff;
+  max-width:420px;line-height:1.7;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  animation:fadeInUp 1s ease .9s both;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+.swipe-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:#fff;font-size:12px;letter-spacing:1px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  animation:fadeIn 1s ease 1.5s both;
+  pointer-events:none;
+}
+.swipe-hint .arrow-left{
+  font-size:20px;animation:slideLeftArrow 1.5s ease-in-out infinite;
+}
+@keyframes slideLeftArrow{0%,100%{transform:translateX(0);opacity:0.7;}50%{transform:translateX(-10px);opacity:1;}}
+.intro-progress{
+  position:absolute;bottom:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2),#a5b4fc);
+  width:0%;z-index:3;transition:width .1s linear;
+  box-shadow:0 0 12px rgba(139,92,246,0.8);
+}
+
+/* ============ MAIN CONTENT ============ */
+#mainContent{
+  position:relative;
+  left:100%;
+  opacity:0;
+  /* Transisi masuk dari kanan */
+  transition:left 1s cubic-bezier(.2,.8,.2,1), opacity .8s ease;
+  will-change:left, opacity;
+}
+#mainContent.slide-in{left:0; opacity:1;}
+
+/* ============ BACKGROUND VIDEO 2 ============ */
+#bgVideo{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  object-fit:cover;z-index:-2;opacity:1;
+}
+.video-overlay{display: none;}
+
+/* ============ NAVBAR ============ */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 6%;
+  background:rgba(8,9,13,0.4);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:15px;letter-spacing:1px; text-shadow: 0 2px 10px rgba(0,0,0,0.8);}
+.brand-img{
+  width:32px;height:32px;border-radius:8px;
+  object-fit:cover;
+  box-shadow:0 0 10px rgba(99,102,241,0.3);
+}
+.nav-links{display:flex;gap:4px;list-style:none;}
+.nav-links a{
+  color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+  padding:8px 14px;border-radius:8px;transition:.2s;cursor:pointer;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(255,255,255,0.1);}
+.music-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 14px;border-radius:10px;
+  background:rgba(255,255,255,0.1);border:1px solid var(--border-strong);
+  color:var(--text);cursor:pointer;font-size:12px;font-family:'Inter';
+  transition:.2s;
+}
+.music-btn:hover{background:rgba(255,255,255,0.2);}
+.music-btn.playing{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none; box-shadow: 0 0 15px rgba(99,102,241,0.5);}
+.music-btn.playing .music-bars span{background:#fff;}
+.music-bars{display:flex;gap:2px;align-items:flex-end;height:12px;}
+.music-bars span{width:2px;background:var(--text);border-radius:1px;}
+.music-bars span:nth-child(1){height:40%;}
+.music-bars span:nth-child(2){height:100%;}
+.music-bars span:nth-child(3){height:60%;}
+.music-bars span:nth-child(4){height:80%;}
+.music-btn.playing .music-bars span{animation:wave 0.8s ease-in-out infinite;}
+.music-btn.playing .music-bars span:nth-child(2){animation-delay:.1s;}
+.music-btn.playing .music-bars span:nth-child(3){animation-delay:.2s;}
+.music-btn.playing .music-bars span:nth-child(4){animation-delay:.3s;}
+@keyframes wave{0%,100%{height:30%;}50%{height:100%;}}
+
+/* ============ PAGES ============ */
+.page{
+  display:none;
+  min-height:calc(100vh - 65px);
+  padding:0 6%;
+  animation:pageFadeIn .6s cubic-bezier(.2,.8,.2,1);
+}
+.page.active{display:block;}
+@keyframes pageFadeIn{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ============ HERO ============ */
+.hero{
+  text-align:center;padding:60px 0 40px;
+  position:relative;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:100px;
+  background:rgba(99,102,241,0.3);
+  border:1px solid rgba(99,102,241,0.5);
+  backdrop-filter:blur(10px);
+  font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  color:#fff;margin-bottom:24px;font-weight:500;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+.hero-tag .dot{
+  width:6px;height:6px;border-radius:50%;background:var(--success);
+  box-shadow:0 0 8px var(--success);animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+.hero h1{
+  font-family:'Space Grotesk';
+  font-size:clamp(28px,5vw,50px);
+  font-weight:700;line-height:1.1;
+  letter-spacing:-1.5px;margin-bottom:20px;
+  text-shadow:0 4px 20px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8);
+}
+.hero h1 .gradient{
+  background:linear-gradient(135deg,#fff 0%,#a5b4fc 50%,var(--accent-2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow: none;
+}
+.hero p{
+  color:#fff;max-width:520px;margin:0 auto 20px;
+  font-size:15px;line-height:1.7;
+  text-shadow:0 2px 10px rgba(0,0,0,0.9);
+}
+
+/* ============ PAYMENT SECTION ============ */
+.payment-section{padding:0 0 60px;}
+.section-head{text-align:center;margin-bottom:36px;}
+.section-head .label{
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:#c4c9ff;font-weight:600;margin-bottom:10px;
+  text-shadow:0 2px 8px rgba(0,0,0,0.9);
+}
+.section-head h2{
+  font-family:'Space Grotesk';font-size:clamp(24px,3.5vw,34px);
+  font-weight:600;letter-spacing:-.5px;
+  text-shadow:0 2px 20px rgba(0,0,0,0.9);
+}
+
+/* ---- Payment grid ---- */
+.payment-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  max-width:1100px;margin:0 auto;
+}
+
+/* ---- CARD PEMBAYARAN (Kaca Transparan) ---- */
+.pay-feature{
+  background:rgba(10, 11, 16, 0.45);
+  backdrop-filter:blur(12px) saturate(140%);
+  -webkit-backdrop-filter:blur(12px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:20px;
+  padding:24px 18px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  position:relative;overflow:hidden;
+  cursor:pointer;
+  transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .3s;
+  min-height:260px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+}
+.pay-feature::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 20%,var(--glow-color,rgba(99,102,241,0.15)),transparent 70%);
+  pointer-events:none;transition:opacity .4s;
+}
+.pay-feature::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  opacity:.6;
+}
+.pay-feature:hover{
+  transform:translateY(-4px) scale(1.02);
+  border-color:var(--glow-border,rgba(99,102,241,0.8));
+  box-shadow:0 16px 40px rgba(0,0,0,0.6), 0 0 30px var(--glow-color,rgba(99,102,241,0.3));
+}
+
+.pay-feature .feature-icon{
+  width:64px;height:64px;
+  border-radius:18px;
+  background:var(--icon-bg,rgba(99,102,241,0.15));
+  border:1px solid var(--icon-border,rgba(99,102,241,0.4));
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  color:var(--icon-color,#c4c9ff);
+  margin-bottom:16px;position:relative;
+  backdrop-filter:blur(4px);
+  box-shadow:0 0 20px var(--glow-color,rgba(99,102,241,0.15));
+}
+.pay-feature .feature-icon::after{
+  content:'';position:absolute;inset:-6px;border-radius:24px;
+  border:1px dashed var(--icon-border,rgba(99,102,241,0.4));
+  animation:rotateSlow 20s linear infinite;
+}
+@keyframes rotateSlow{to{transform:rotate(360deg);}}
+
+.pay-feature h3{
+  font-family:'Space Grotesk';font-size:18px;font-weight:600;
+  margin-bottom:6px;letter-spacing:-.3px;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+.pay-feature .sub{
+  font-size:11.5px;color:#e0e5f0;line-height:1.5;
+  margin-bottom:18px;max-width:200px;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+.pay-feature .cta{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 20px;border-radius:100px;
+  background:var(--cta-bg,linear-gradient(135deg,var(--accent),var(--accent-2)));
+  color:#fff;font-size:12px;font-weight:600;
+  box-shadow:var(--cta-shadow,0 6px 18px rgba(99,102,241,0.5));
+  transition:.3s;border:1px solid rgba(255,255,255,0.2);
+}
+.pay-feature:hover .cta{transform:scale(1.05);box-shadow:var(--cta-shadow-hover,0 10px 24px rgba(99,102,241,0.7));}
+
+/* Warna tema */
+.pay-feature.qr{
+  --glow-color:rgba(139,92,246,0.3);
+  --glow-border:rgba(139,92,246,0.8);
+  --icon-bg:rgba(139,92,246,0.2);
+  --icon-border:rgba(139,92,246,0.5);
+  --icon-color:#d4c5ff;
+  --cta-bg:linear-gradient(135deg,#8b5cf6,#6366f1);
+  --cta-shadow:0 6px 18px rgba(139,92,246,0.5);
+  --cta-shadow-hover:0 10px 24px rgba(139,92,246,0.8);
+}
+.pay-feature.dana{
+  --glow-color:rgba(17,142,234,0.3);
+  --glow-border:rgba(17,142,234,0.8);
+  --icon-bg:rgba(17,142,234,0.2);
+  --icon-border:rgba(17,142,234,0.5);
+  --icon-color:#7cc7ff;
+  --cta-bg:linear-gradient(135deg,#118eea,#0a6fc0);
+  --cta-shadow:0 6px 18px rgba(17,142,234,0.5);
+  --cta-shadow-hover:0 10px 24px rgba(17,142,234,0.8);
+}
+.pay-feature.gopay{
+  --glow-color:rgba(0,170,19,0.3);
+  --glow-border:rgba(0,170,19,0.8);
+  --icon-bg:rgba(0,170,19,0.2);
+  --icon-border:rgba(0,170,19,0.5);
+  --icon-color:#5eff7a;
+  --cta-bg:linear-gradient(135deg,#00aa13,#008a0f);
+  --cta-shadow:0 6px 18px rgba(0,170,19,0.5);
+  --cta-shadow-hover:0 10px 24px rgba(0,170,19,0.8);
+}
+
+/* ============ SCANNER ============ */
+.scan-section{padding:70px 0 60px;}
+.scan-wrap{
+  max-width:560px;margin:0 auto;
+  background:rgba(10, 11, 16, 0.6);
+  backdrop-filter:blur(15px);
+  border:1px solid var(--border-strong);
+  border-radius:24px;padding:32px;text-align:center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.scan-box{
+  width:100%;aspect-ratio:1;max-width:320px;margin:0 auto 24px;
+  border-radius:20px;position:relative;overflow:hidden;
+  background:rgba(0,0,0,0.6);border:1px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:center;
+}
+#scanVideo{width:100%;height:100%;object-fit:cover;display:none;}
+.scan-placeholder{color:var(--muted);font-size:13px;padding:20px;text-align:center;}
+.scan-placeholder i{font-size:42px;margin-bottom:14px;display:block;color:var(--accent);opacity:.6;}
+.scan-line{
+  position:absolute;left:6%;right:6%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  box-shadow:0 0 16px var(--accent);
+  animation:scanMove 2.4s ease-in-out infinite;display:none;
+}
+@keyframes scanMove{0%,100%{top:12%;}50%{top:88%;}}
+.scan-box.active .scan-line{display:block;}
+.scan-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  padding:12px 24px;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Inter';font-weight:500;font-size:13px;
+  display:inline-flex;align-items:center;gap:8px;transition:.25s;
+  text-decoration:none;
+}
+.btn-accent{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff;box-shadow:0 6px 20px rgba(99,102,241,0.5);
+}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(99,102,241,0.7);}
+.btn-outline{
+  background:rgba(255,255,255,0.1);border:1px solid var(--border-strong);color:var(--text);
+}
+.btn-outline:hover{background:rgba(255,255,255,0.2);}
+.scan-result{
+  margin-top:16px;padding:12px 16px;border-radius:12px;
+  background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);
+  font-size:12px;word-break:break-all;display:none;color:#c4c9ff;
+}
+.scan-result.show{display:block;animation:fadeIn .4s ease;}
+
+/* ============ OWNER ============ */
+.owner-section{padding:70px 0 60px;}
+.owner-card{
+  max-width:720px;margin:0 auto;
+  background:rgba(10, 11, 16, 0.6);
+  backdrop-filter:blur(15px);
+  border:1px solid var(--border-strong);
+  border-radius:24px;padding:36px;
+  display:flex;gap:28px;align-items:center;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.owner-card::before{
+  content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(99,102,241,0.3),transparent 70%);
+}
+.owner-avatar{
+  width:90px;height:90px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk';font-size:36px;font-weight:700;
+  border:3px solid rgba(255,255,255,0.2);
+  position:relative;z-index:1;box-shadow:0 0 40px rgba(99,102,241,0.5);
+}
+.owner-info{flex:1;min-width:220px;position:relative;z-index:1;}
+.owner-info h3{font-family:'Space Grotesk';font-size:22px;margin-bottom:6px;font-weight:600;}
+.owner-info .role{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a5b4fc;margin-bottom:14px;font-weight:600;}
+.owner-info p{color:#d0d8e8;font-size:13px;line-height:1.7;margin-bottom:20px;}
+.wa-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 24px;border-radius:12px;
+  background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;text-decoration:none;
+  font-weight:600;font-size:13px;box-shadow:0 6px 20px rgba(37,211,102,0.4);transition:.25s;
+}
+.wa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(37,211,102,0.6);}
+
+/* ============ PRODUCTS ============ */
+.product-section{padding:70px 0 60px;}
+.product-toolbar{
+  max-width:1100px;margin:0 auto 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:16px;
+}
+.product-count{
+  font-size:13px;color:#d0d8e8;
+  background:rgba(0,0,0,0.4);
+  padding:8px 16px;border-radius:100px;
+  border:1px solid var(--border-strong);
+  backdrop-filter:blur(10px);
+}
+.product-count strong{color:#a5b4fc;}
+.product-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;max-width:1100px;margin:0 auto 32px;
+}
+.product-card{
+  background:rgba(10, 11, 16, 0.6);
+  backdrop-filter:blur(15px);
+  border:1px solid var(--border-strong);
+  border-radius:22px;padding:24px;
+  transition:.35s;position:relative;overflow:hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.product-card:hover{
+  border-color:rgba(139,92,246,0.6);
+  transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,0.5);
+}
+.product-card .p-icon{
+  width:52px;height:52px;border-radius:14px;
+  background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:16px;
+}
+.product-card h4{font-size:15px;font-weight:600;margin-bottom:8px;line-height:1.4;}
+.product-card .p-desc{font-size:12px;color:#d0d8e8;margin-bottom:16px;line-height:1.5;min-height:36px;}
+.product-card .p-price{
+  font-family:'Space Grotesk';font-size:19px;font-weight:600;
+  color:#c4c9ff;margin-bottom:16px;
+}
+.product-card .p-price small{
+  font-family:'Inter';font-size:10px;color:var(--muted);font-weight:400;
+  margin-left:6px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.1);
+}
+.p-actions{display:flex;gap:8px;}
+.p-actions .btn{padding:10px 12px;font-size:12px;flex:1;justify-content:center;}
+.p-actions .del{
+  background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);
+  color:#ff7070;flex:0 0 auto;
+}
+.p-actions .del:hover{background:rgba(239,68,68,0.3);}
+.add-form{
+  max-width:600px;margin:0 auto;
+  background:rgba(10, 11, 16, 0.6);
+  backdrop-filter:blur(15px);
+  border:1px solid var(--border-strong);
+  border-radius:24px;padding:32px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.add-form h3{
+  font-family:'Space Grotesk';font-size:17px;font-weight:600;
+  margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.add-form h3 i{color:var(--accent);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:11px;color:#d0d8e8;letter-spacing:.5px;font-weight:500;}
+.form-group input,.form-group textarea{
+  padding:12px 14px;border-radius:12px;
+  background:rgba(0,0,0,0.5);border:1px solid var(--border-strong);
+  color:var(--text);font-family:'Inter';font-size:13px;outline:none;transition:.2s;
+}
+.form-group input:focus,.form-group textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.3);
+}
+.form-group textarea{resize:vertical;min-height:70px;font-family:'Inter';}
+
+/* ============ MODAL ============ */
+.modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;visibility:hidden;
+  transition:opacity .3s ease, visibility .3s;
+}
+.modal-overlay.show{opacity:1;visibility:visible;}
+.modal-content{
+  background:linear-gradient(160deg,rgba(20,22,30,0.95),rgba(10,11,16,0.95));
+  backdrop-filter:blur(30px);
+  border:1px solid var(--modal-border,rgba(99,102,241,0.4));
+  border-radius:28px;padding:38px 32px;
+  max-width:400px;width:100%;text-align:center;position:relative;
+  transform:scale(.9);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 24px 60px rgba(0,0,0,0.8);
+}
+.modal-overlay.show .modal-content{transform:scale(1);}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,0.1);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;font-size:14px;
+}
+.modal-close:hover{background:rgba(255,255,255,0.2);color:var(--text);}
+.modal-icon{
+  width:64px;height:64px;border-radius:18px;
+  background:var(--m-icon-bg,rgba(99,102,241,0.15));
+  border:1px solid var(--m-icon-border,rgba(99,102,241,0.35));
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;color:var(--m-icon-color,#c4c9ff);
+  margin:0 auto 18px;
+}
+.modal-content h3{
+  font-family:'Space Grotesk';font-size:19px;font-weight:600;
+  margin-bottom:6px;
+}
+.modal-content .m-sub{font-size:12px;color:var(--muted);margin-bottom:26px;}
+
+/* QR Frame Diperbesar */
+.qr-frame{
+  background:#fff;border-radius:18px;padding:16px;
+  display:inline-block;margin-bottom:16px;
+  box-shadow:0 16px 50px rgba(0,0,0,0.8);
+}
+.qr-frame img{width:100%;max-width:280px;height:auto;display:block;border-radius:8px;object-fit:contain;}
+
+.modal-number-block{
+  background:rgba(0,0,0,0.5);border:1px solid var(--border-strong);
+  border-radius:18px;padding:26px 20px;margin-bottom:20px;
+}
+.modal-number-label{
+  font-size:11px;color:var(--muted);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.modal-number{
+  font-family:'Space Grotesk';font-size:26px;font-weight:700;
+  letter-spacing:1.5px;margin-bottom:8px;
+  color:var(--m-number-color,#fff);
+}
+.modal-owner{font-size:12px;color:var(--muted);}
+.modal-owner strong{color:#d0d8e8;font-weight:500;}
+.modal-copy-btn{
+  width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Inter';font-weight:600;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--m-cta-bg,linear-gradient(135deg,var(--accent),var(--accent-2)));
+  color:#fff;box-shadow:var(--m-cta-shadow,0 8px 24px rgba(99,102,241,0.5));
+  transition:.25s;margin-bottom:14px;
+}
+.modal-copy-btn:hover{transform:translateY(-2px);}
+.modal-copy-btn.copied{background:linear-gradient(135deg,#10b981,#059669) !important;}
+.modal-note{
+  padding:12px 16px;border-radius:12px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  font-size:11px;color:var(--muted);line-height:1.5;
+}
+.modal-overlay.qr .modal-content{--modal-border:rgba(139,92,246,0.6);--m-icon-bg:rgba(139,92,246,0.2);--m-icon-border:rgba(139,92,246,0.4);--m-icon-color:#d4c5ff;}
+.modal-overlay.dana .modal-content{
+  --modal-border:rgba(17,142,234,0.6);--m-icon-bg:rgba(17,142,234,0.2);
+  --m-icon-border:rgba(17,142,234,0.4);--m-icon-color:#7cc7ff;--m-number-color:#7cc7ff;
+  --m-cta-bg:linear-gradient(135deg,#118eea,#0a6fc0);--m-cta-shadow:0 8px 24px rgba(17,142,234,0.5);
+}
+.modal-overlay.gopay .modal-content{
+  --modal-border:rgba(0,170,19,0.6);--m-icon-bg:rgba(0,170,19,0.2);
+  --m-icon-border:rgba(0,170,19,0.4);--m-icon-color:#5eff7a;--m-number-color:#5eff7a;
+  --m-cta-bg:linear-gradient(135deg,#00aa13,#008a0f);--m-cta-shadow:0 8px 24px rgba(0,170,19,0.5);
+}
+
+/* Tombol Download QR */
+.download-qr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.download-qr-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* ============ FOOTER & TOAST ============ */
+footer{
+  padding:40px 6%;text-align:center;
+  border-top:1px solid var(--border);color:var(--muted);font-size:12px;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);
+}
+footer .brand{justify-content:center;margin-bottom:14px;}
+footer p{margin-top:6px;line-height:1.6;}
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);
+  padding:13px 24px;border-radius:100px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff;font-weight:500;font-size:13px;z-index:9998;
+  box-shadow:0 10px 30px rgba(99,102,241,0.5);
+  transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .3s;opacity:0;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+@media(max-width:900px){
+  .payment-grid{grid-template-columns:1fr;gap:16px;}
+  .pay-feature{min-height:auto;padding:20px 16px;}
+  .pay-feature .feature-icon{width:54px;height:54px;font-size:22px;margin-bottom:12px;}
+  .pay-feature h3{font-size:16px;}
+  .pay-feature .sub{font-size:11px;margin-bottom:14px;}
+  .pay-feature .cta{padding:8px 16px;font-size:11px;}
+}
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .hero{padding:50px 0 30px;}
+  .hero h1{letter-spacing:-1px;}
+  .owner-card{padding:28px;text-align:center;justify-content:center;}
+  .owner-info{text-align:center;}
+  .form-row{grid-template-columns:1fr;}
+  .modal-content{padding:28px 22px;}
+  .qr-frame img{max-width:220px;}
+  .swipe-hint{bottom:30px;}
+  .page{padding:0 5%;}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img src="https://files.catbox.moe/qmq50h.jpg" alt="Logo" class="splash-logo">
+  <div class="splash-title">SKYZOOSTORE</div>
+  <div class="splash-sub">Premium Payment</div>
+</div>
+
+<!-- INTRO VIDEO FULLSCREEN -->
+<div id="introVideo">
+  <video id="introVideoEl" autoplay muted playsinline preload="auto">
+    <source src="https://files.catbox.moe/jm5exo.mp4" type="video/mp4">
+  </video>
+  <div class="intro-overlay">
+    <div class="intro-tag">✦ Welcome to ✦</div>
+    <h1>PAYMENT BY <span>SKYZOOSTORE</span></h1>
+    <p>Platform pembayaran digital premium dengan QR All Payment, DANA & GoPay</p>
+  </div>
+  <!-- Hint untuk Geser Kiri -->
+  <div class="swipe-hint">
+    <i class="fa-solid fa-arrow-left arrow-left"></i>
+    <span>Geser Kiri untuk Masuk</span>
+  </div>
+  <div class="intro-progress" id="introProgress"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+  <!-- BACKGROUND VIDEO 2 -->
+  <video id="bgVideo" autoplay muted loop playsinline preload="auto">
+    <source src="https://files.catbox.moe/jh2bf4.mp4" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="brand">
+      <img src="https://files.catbox.moe/qmq50h.jpg" alt="Logo" class="brand-img">
+      SKYZOOSTORE
+    </div>
+    <ul class="nav-links">
+      <li><a class="nav-link active" data-page="payment" onclick="showPage('payment')">Pembayaran</a></li>
+      <li><a class="nav-link" data-page="scanner" onclick="showPage('scanner')">Scan QR</a></li>
+      <li><a class="nav-link" data-page="owner" onclick="showPage('owner')">Owner</a></li>
+      <li><a class="nav-link" data-page="produk" onclick="showPage('produk')">Produk</a></li>
+    </ul>
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+      <div class="music-bars" id="musicBars">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <span id="musicLabel">Musik</span>
+    </button>
+  </nav>
+
+  <!-- PAGE: PAYMENT -->
+  <div class="page active" id="page-payment">
+    <section class="hero">
+      <div class="hero-tag"><span class="dot"></span> Sistem Online 24/7</div>
+      <h1>ALL PAYMENT BY <span class="gradient">SKYZOOSTORE</span></h1>
+      <p>Pilih metode pembayaran di bawah. Klik salah satu untuk melihat detail.</p>
+    </section>
+
+    <section class="payment-section">
+      <div class="section-head">
+        <div class="label">Metode Pembayaran</div>
+        <h2>Pilih Cara Bayar</h2>
+      </div>
+      <div class="payment-grid">
+        <!-- DANA -->
+        <div class="pay-feature dana" onclick="openModal('dana')">
+          <div class="feature-icon"><i class="fa-solid fa-wallet"></i></div>
+          <h3>DANA</h3>
+          <div class="sub">Transfer ke nomor DANA owner</div>
+          <div class="cta"><i class="fa-solid fa-expand"></i> Lihat Nomor</div>
+        </div>
+        <!-- QR -->
+        <div class="pay-feature qr" onclick="openModal('qr')">
+          <div class="feature-icon"><i class="fa-solid fa-qrcode"></i></div>
+          <h3>QR All Payment</h3>
+          <div class="sub">Scan dengan aplikasi apapun</div>
+          <div class="cta"><i class="fa-solid fa-expand"></i> Tampilkan QR</div>
+        </div>
+        <!-- GOPAY -->
+        <div class="pay-feature gopay" onclick="openModal('gopay')">
+          <div class="feature-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+          <h3>GoPay</h3>
+          <div class="sub">Transfer ke nomor GoPay owner</div>
+          <div class="cta"><i class="fa-solid fa-expand"></i> Lihat Nomor</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE: SCANNER -->
+  <div class="page" id="page-scanner">
+    <section class="scan-section">
+      <div class="section-head">
+        <div class="label">QR Scanner</div>
+        <h2>Scan QR Code</h2>
+      </div>
+      <div class="scan-wrap">
+        <div class="scan-box" id="scanBox">
+          <video id="scanVideo" autoplay playsinline></video>
+          <div class="scan-placeholder" id="scanPlaceholder">
+            <i class="fa-solid fa-camera"></i>
+            Kamera belum aktif
+          </div>
+          <div class="scan-line"></div>
+        </div>
+        <div class="scan-actions">
+          <button class="btn btn-accent" id="startScanBtn" onclick="startScan()">
+            <i class="fa-solid fa-camera"></i> Mulai Scan
+          </button>
+          <button class="btn btn-outline" id="stopScanBtn" onclick="stopScan()" style="display:none;">
+            <i class="fa-solid fa-stop"></i> Stop
+          </button>
+        </div>
+        <div class="scan-result" id="scanResult"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE: OWNER -->
+  <div class="page" id="page-owner">
+    <section class="owner-section">
+      <div class="section-head">
+        <div class="label">Owner</div>
+        <h2>Hubungi Kami</h2>
+      </div>
+      <div class="owner-card">
+        <div class="owner-avatar">S</div>
+        <div class="owner-info">
+          <h3>SKYZOOSTORE</h3>
+          <div class="role">Founder & Store Manager</div>
+          <p>Melayani top up game, pulsa, dan produk digital premium. Fast response & terpercaya.</p>
+          <a href="https://wa.me/628561907398?text=Halo%20Owner%20SKYZOOSTORE" target="_blank" class="wa-btn">
+            <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i> Chat WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE: PRODUK -->
+  <div class="page" id="page-produk">
+    <section class="product-section">
+      <div class="section-head">
+        <div class="label">Katalog</div>
+        <h2>Daftar Produk</h2>
+      </div>
+
+      <div class="product-toolbar">
+        <div class="product-count">Total: <strong id="pCount">0</strong> produk</div>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
+
+      <div class="add-form">
+        <h3><i class="fa-solid fa-plus"></i> Tambah Produk Baru</h3>
+        <form id="addForm" onsubmit="addProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nama Produk</label>
+              <input type="text" id="pName" placeholder="Diamond ML 100" required>
+            </div>
+            <div class="form-group">
+              <label>Harga (Rp)</label>
+              <input type="number" id="pPrice" placeholder="28000" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group full">
+              <label>Deskripsi</label>
+              <textarea id="pDesc" placeholder="Deskripsi singkat..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ikon (emoji)</label>
+              <input type="text" id="pIcon" placeholder="💎" maxlength="4">
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <input type="text" id="pCat" placeholder="Game">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-accent" style="width:100%;justify-content:center;margin-top:6px;">
+            <i class="fa-solid fa-circle-plus"></i> Tambah Produk
+          </button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="brand">
+      <img src="https://files.catbox.moe/qmq50h.jpg" alt="Logo" class="brand-img">
+      SKYZOOSTORE
+    </div>
+    <p>&copy; 2024 SKYZOOSTORE. All rights reserved.</p>
+  </footer>
+
+</div><!-- /#mainContent -->
+
+<!-- MODALS -->
+<div class="modal-overlay qr" id="modalQR" onclick="closeModal(event, 'qr')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal(null, 'qr')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-qrcode"></i></div>
+    <h3>QR All Payment</h3>
+    <div class="m-sub">Scan atau download QR di bawah ini</div>
+    <div class="qr-frame">
+      <img src="https://files.catbox.moe/rokdxs.jpeg" alt="QR All Payment">
+    </div>
+    <div>
+      <a href="https://files.catbox.moe/rokdxs.jpeg" download="QR-SKYZOOSTORE" target="_blank" class="download-qr-btn">
+        <i class="fa-solid fa-download"></i> Download QR
+      </a>
+    </div>
+    <div class="modal-note" style="margin-top: 20px;"><i class="fa-solid fa-circle-check"></i> Mendukung semua bank & e-wallet nasional</div>
+  </div>
+</div>
+
+<div class="modal-overlay dana" id="modalDana" onclick="closeModal(event, 'dana')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal(null, 'dana')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-wallet"></i></div>
+    <h3>Transfer DANA</h3>
+    <div class="m-sub">Kirim ke nomor DANA di bawah ini</div>
+    <div class="modal-number-block">
+      <div class="modal-number-label">Nomor DANA</div>
+      <div class="modal-number" id="danaNumber">08561907398</div>
+      <div class="modal-owner">a/n <strong>ZAKIDAR****AN</strong></div>
+    </div>
+    <button class="modal-copy-btn" id="danaCopyBtn" onclick="copyModal('danaNumber','danaCopyBtn')">
+      <i class="fa-solid fa-copy"></i> Salin Nomor DANA
+    </button>
+    <div class="modal-note"><i class="fa-solid fa-circle-info"></i> Setelah transfer, kirim bukti via WhatsApp owner</div>
+  </div>
+</div>
+
+<div class="modal-overlay gopay" id="modalGopay" onclick="closeModal(event, 'gopay')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal(null, 'gopay')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+    <h3>Transfer GoPay</h3>
+    <div class="m-sub">Kirim ke nomor GoPay di bawah ini</div>
+    <div class="modal-number-block">
+      <div class="modal-number-label">Nomor GoPay</div>
+      <div class="modal-number" id="gopayNumber">08561907398</div>
+      <div class="modal-owner">a/n <strong>ZAKIDAR****AN</strong></div>
+    </div>
+    <button class="modal-copy-btn" id="gopayCopyBtn" onclick="copyModal('gopayNumber','gopayCopyBtn')">
+      <i class="fa-solid fa-copy"></i> Salin Nomor GoPay
+    </button>
+    <div class="modal-note"><i class="fa-solid fa-circle-info"></i> Setelah transfer, kirim bukti via WhatsApp owner</div>
+  </div>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+</audio>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ SPLASH → INTRO ============ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    startIntro();
+  }, 2000);
+});
+
+/* ============ INTRO VIDEO & SWIPE LOGIC ============ */
+const introEl = document.getElementById('introVideo');
+const introVideoEl = document.getElementById('introVideoEl');
+const introProgress = document.getElementById('introProgress');
+const mainContent = document.getElementById('mainContent');
+let introFinished = false;
+let progressTimer = null;
+let isAnimating = false; // Mencegah swipe ganda saat animasi berjalan
+
+function startIntro(){
+  introVideoEl.play().catch(() => {
+    setTimeout(finishIntro, 3000);
+  });
+  progressTimer = setInterval(() => {
+    if(introVideoEl.duration){
+      const pct = (introVideoEl.currentTime / introVideoEl.duration) * 100;
+      introProgress.style.width = pct + '%';
+    }
+  }, 100);
+  
+  introVideoEl.addEventListener('ended', finishIntro);
+  
+  introVideoEl.addEventListener('loadedmetadata', () => {
+    const dur = Math.min(introVideoEl.duration * 1000, 12000);
+    setTimeout(() => { if(!introFinished) finishIntro(); }, dur + 500);
+  });
+  setTimeout(() => { if(!introFinished) finishIntro(); }, 10000);
+}
+
+function finishIntro(){
+  if(introFinished || isAnimating) return;
+  isAnimating = true;
+  introFinished = true;
+  clearInterval(progressTimer);
+  
+  // Sembunyikan Intro (Fade out)
+  introEl.classList.add('slide-out');
+  
+  // Munculkan Konten Utama (Slide dari kanan)
+  setTimeout(() => { 
+    mainContent.classList.add('slide-in'); 
+  }, 150);
+  
+  setTimeout(() => {
+    introEl.style.display = 'none';
+    const bgVid = document.getElementById('bgVideo');
+    bgVid.play().catch(()=>{});
+    isAnimating = false;
+  }, 1200);
+}
+
+function backToIntro(){
+  if(!introFinished || isAnimating) return;
+  isAnimating = true;
+  introFinished = false;
+  
+  // Sembunyikan Konten Utama (Geser ke kanan)
+  mainContent.classList.remove('slide-in');
+  
+  // Munculkan Intro kembali
+  setTimeout(() => {
+    introEl.style.display = 'block';
+    setTimeout(() => {
+      introEl.classList.remove('slide-out');
+      
+      // Putar ulang video
+      introVideoEl.currentTime = 0;
+      introVideoEl.play().catch(()=>{});
+      
+      introProgress.style.width = '0%';
+      clearInterval(progressTimer);
+      progressTimer = setInterval(() => {
+        if(introVideoEl.duration){
+          const pct = (introVideoEl.currentTime / introVideoEl.duration) * 100;
+          introProgress.style.width = pct + '%';
+        }
+      }, 100);
+      
+      isAnimating = false;
+    }, 50);
+  }, 800);
+}
+
+/* ============ SWIPE DETECTION (FIX TABRAKAN) ============ */
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+document.addEventListener('touchend', e => {
+  let touchEndX = e.changedTouches[0].screenX;
+  let touchEndY = e.changedTouches[0].screenY;
+  handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+}, {passive: true});
+
+function handleSwipe(startX, startY, endX, endY) {
+  // Jika sedang beranimasi, abaikan swipe
+  if (isAnimating) return;
+
+  const diffX = startX - endX;
+  const diffY = startY - endY;
+  
+  // Pastikan geseran lebih dominan horizontal daripada vertikal (mencegah scroll)
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
+    if (diffX > 0) {
+      // Geser Kiri (Swiped Left) -> Masuk
+      if (!introFinished) {
+        finishIntro();
+      }
+    } else {
+      // Geser Kanan (Swiped Right) -> Kembali
+      if (introFinished) {
+        // Hanya bisa kembali jika sedang di paling atas halaman
+        if (window.scrollY < 100) {
+          backToIntro();
+        }
+      }
+    }
+  }
+}
+
+/* ============ SPA PAGE NAVIGATION ============ */
+function showPage(pageId){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.page === pageId);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(pageId !== 'scanner' && scanStream){ stopScan(); }
+}
+
+/* ============ MUSIC ============ */
+let musicPlaying = false;
+const bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = 0.25;
+function toggleMusic(){
+  const btn = document.getElementById('musicBtn');
+  const label = document.getElementById('musicLabel');
+  if(musicPlaying){
+    bgMusic.pause();
+    btn.classList.remove('playing');
+    label.textContent = 'Musik';
+    musicPlaying = false;
+  } else {
+    bgMusic.play().then(() => {
+      btn.classList.add('playing');
+      label.textContent = 'On';
+      musicPlaying = true;
+      showToast('🎵 Musik diputar');
+    }).catch(() => showToast('⚠️ Klik lagi untuk memutar musik'));
+  }
+}
+
+/* ============ MODAL ============ */
+const modalMap = { qr:'modalQR', dana:'modalDana', gopay:'modalGopay' };
+function openModal(type){
+  const el = document.getElementById(modalMap[type]);
+  if(el){ el.classList.add('show'); document.body.style.overflow = 'hidden'; }
+}
+function closeModal(e, type){
+  if(e && e.target !== e.currentTarget) return;
+  const el = document.getElementById(modalMap[type]);
+  if(el){ el.classList.remove('show'); document.body.style.overflow = ''; }
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    Object.values(modalMap).forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove('show');
+    });
+    document.body.style.overflow = '';
+  }
+});
+
+/* ============ COPY ============ */
+function copyModal(numId, btnId){
+  const numEl = document.getElementById(numId);
+  const btn = document.getElementById(btnId);
+  const text = numEl.textContent.replace(/\s/g,'');
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Berhasil Disalin!';
+    showToast('✅ Nomor disalin');
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = original; }, 2000);
+  }).catch(() => showToast('❌ Gagal menyalin'));
+}
+
+/* ============ TOAST ============ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ============ SCANNER ============ */
+let scanStream = null;
+let scanAnimId = null;
+async function startScan(){
+  const box = document.getElementById('scanBox');
+  const video = document.getElementById('scanVideo');
+  const ph = document.getElementById('scanPlaceholder');
+  const startBtn = document.getElementById('startScanBtn');
+  const stopBtn = document.getElementById('stopScanBtn');
+  const result = document.getElementById('scanResult');
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } });
+    video.srcObject = scanStream;
+    video.style.display = 'block';
+    ph.style.display = 'none';
+    box.classList.add('active');
+    startBtn.style.display = 'none';
+    stopBtn.style.display = 'inline-flex';
+    result.classList.remove('show');
+    showToast('📷 Kamera aktif');
+    if('BarcodeDetector' in window){
+      const detector = new BarcodeDetector({ formats:['qr_code'] });
+      const loop = async () => {
+        if(!scanStream) return;
+        try {
+          const codes = await detector.detect(video);
+          if(codes.length > 0){
+            result.textContent = '✅ QR Terdeteksi: ' + codes[0].rawValue;
+            result.classList.add('show');
+            showToast('✅ QR berhasil dipindai');
+            stopScan(); return;
+          }
+        } catch(e){}
+        scanAnimId = requestAnimationFrame(loop);
+      };
+      loop();
+    } else {
+      result.textContent = 'ℹ️ Browser belum mendukung auto-detect QR.';
+      result.classList.add('show');
+    }
+  } catch(err){ showToast('❌ Kamera gagal diakses'); }
+}
+function stopScan(){
+  const box = document.getElementById('scanBox');
+  const video = document.getElementById('scanVideo');
+  const ph = document.getElementById('scanPlaceholder');
+  const startBtn = document.getElementById('startScanBtn');
+  const stopBtn = document.getElementById('stopScanBtn');
+  if(scanStream){ scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  if(scanAnimId){ cancelAnimationFrame(scanAnimId); scanAnimId = null; }
+  video.srcObject = null;
+  video.style.display = 'none';
+  ph.style.display = 'flex';
+  box.classList.remove('active');
+  startBtn.style.display = 'inline-flex';
+  stopBtn.style.display = 'none';
+}
+
+/* ============ PRODUCTS ============ */
+let products = JSON.parse(localStorage.getItem('nexus_products') || 'null') || [
+  { id:1, name:'Diamond ML 100', price:28000, desc:'Top up diamond Mobile Legends', icon:'💎', cat:'Game' },
+  { id:2, name:'Pulsa 50K All Op', price:49500, desc:'Pulsa elektrik semua operator', icon:'📱', cat:'Pulsa' },
+  { id:3, name:'FF Diamond 70', price:10000, desc:'Diamond Free Fire instant', icon:'🔥', cat:'Game' },
+  { id:4, name:'Netflix 1 Bulan', price:35000, desc:'Akun Netflix premium sharing', icon:'🎬', cat:'Streaming' },
+  { id:5, name:'Token Listrik 100K', price:102000, desc:'Token PLN prabayar', icon:'⚡', cat:'Utility' },
+  { id:6, name:'Spotify Premium', price:25000, desc:'Spotify individual 1 bulan', icon:'🎵', cat:'Streaming' }
+];
+function saveProducts(){ localStorage.setItem('nexus_products', JSON.stringify(products)); }
+function rupiah(n){ return 'Rp ' + n.toLocaleString('id-ID'); }
+function esc(s){ const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+function renderProducts(){
+  const grid = document.getElementById('productGrid');
+  document.getElementById('pCount').textContent = products.length;
+  if(!products.length){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;
+      background:rgba(0,0,0,0.5);border:1px dashed var(--border-strong);border-radius:20px;">
+      <i class="fa-solid fa-box-open" style="font-size:40px;display:block;margin-bottom:14px;opacity:.4;color:var(--accent);"></i>
+      Belum ada produk. Tambahkan di bawah!
+    </div>`;
+    return;
+  }
+  grid.innerHTML = products.map(p => `
+    <div class="product-card">
+      <div class="p-icon">${p.icon || '📦'}</div>
+      <h4>${esc(p.name)}</h4>
+      <div class="p-desc">${esc(p.desc)}</div>
+      <div class="p-price">${rupiah(p.price)} ${p.cat ? '<small>'+esc(p.cat)+'</small>' : ''}</div>
+      <div class="p-actions">
+        <a href="https://wa.me/628561907398?text=Halo%20saya%20mau%20beli%20${encodeURIComponent(p.name)}" target="_blank" class="btn btn-accent">
+          <i class="fa-brands fa-whatsapp"></i> Beli
+        </a>
+        <button class="btn del" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+function addProduct(e){
+  e.preventDefault();
+  const name = document.getElementById('pName').value.trim();
+  const price = parseInt(document.getElementById('pPrice').value);
+  const desc = document.getElementById('pDesc').value.trim();
+  const icon = document.getElementById('pIcon').value.trim() || '📦';
+  const cat = document.getElementById('pCat').value.trim();
+  if(!name || !price || price < 1){ showToast('⚠️ Nama & harga wajib diisi'); return; }
+  products.unshift({ id:Date.now(), name, price, desc, icon, cat });
+  saveProducts(); renderProducts();
+  document.getElementById('addForm').reset();
+  showToast('✅ Produk ditambahkan');
+}
+function deleteProduct(id){
+  if(!confirm('Hapus produk ini?')) return;
+  products = products.filter(p => p.id !== id);
+  saveProducts(); renderProducts();
+  showToast('🗑️ Produk dihapus');
+}
+
+renderProducts();
+</script>
+</body>
+</html>
